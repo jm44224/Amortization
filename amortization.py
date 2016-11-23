@@ -94,8 +94,73 @@ class Amort:
     def Title(self, value):
         self._title = str(value)
 
+    # never found out what NU stood for
+    # this will round up the interest,
+    # but only if it is more than zero 
+    def calculateNU(self, nu):
+        if (abs(nu) < .01):
+            nu = 0
+        else:
+            nu *= 100
+            nu = round(nu + 0.5)
+            nu /= 100
+        return nu
+
+    # this is the first step of calculation
+    # it will be improved in the future
+    def amortize(self):
+        badMonthAmount = False
+        beginBalance = self._loanAmount
+        payment = 0
+        principle = 0
+        interest = 0
+        endBalance = 0
+        # this should not be needed
+        # calcPayment is set to overridePayment
+        if (self._overridePayment > 0):
+            paymentPlanned = self._overridePayment
+        else:
+            paymentPlanned = self._calcPayment
+        for month in range(0, self._loanMonths):
+            if (payment > endBalance and endBalance > 0):
+                beginBalance = endBalance
+                interest = beginBalance * (self._percent / 100) / 12
+                interest = self.calculateNU(interest)
+                payment = round(endBalance + interest, 2)
+                principle = round(payment - interest, 2)
+                endBalance = 0
+            else:
+                beginBalance = round(beginBalance - principle, 2)
+                payment = paymentPlanned
+                interest = beginBalance * (self._percent / 100) / 12
+                interest = self.calculateNU(interest)
+                if (month == self._loanMonths - 1 and self._loanMonths != 0):
+                    # 05-01-1992 jam - do not execute if months = 1
+                    payment = round(beginBalance + interest, 2)
+                    principle = beginBalance
+                    # allow balloon payments if balance is greater than zero  11/14 jam
+                    # REM IF (B@(2) > 1.1 * A@(4)) OR (B@(2) < .9 * A@(4)) THEN
+                    # yes, the original code was BASIC, with poorly named variables
+                    if (abs(payment - interest - endBalance) > .01):
+                        badMonthAmount = True
+                else:
+                    principle = round(payment - interest, 2)
+                endBalance = round(beginBalance - principle, 2)
+                if (endBalance < 0):
+                    badMonthAmount = True
+            print("month: " + str(month + 1))
+            print("begin balance: " + str(beginBalance))
+            print("payment: " + str(payment))
+            print("interest: " + str(interest))
+            print("principle: " + str(principle))
+            print("end balance: " + str(endBalance))
+            # or maybe I need an ASSERT here
+            if (badMonthAmount == True):
+                print("error! a bad month amount exists")
+                
     # if percent, loan amount and number months are set
     # recalculate monthly payment
+    # and calculate the entire loan
     def calculateMonthlyPayment(self):
         self._calcPayment = 0.0
         if (self._overridePayment > 0.0):
@@ -106,6 +171,8 @@ class Amort:
             else:
                 monthlyPercent = self._percent / 100.0 / 12.0
                 self._calcPayment = round(self._loanAmount * (monthlyPercent / (1 - ((1 + monthlyPercent) ** (-1 * self._loanMonths)))), 2)
+        if (self._calcPayment > 0):
+            self.amortize()
 
     # shows all values to the user
     def printValues(self):
