@@ -1,4 +1,3 @@
-
 class Amort_Controller:
     def __init__(self, amort_model, amort_view):
         self.amort_model = amort_model
@@ -44,7 +43,7 @@ class Amort_Controller:
                 payment = paymentPlanned
                 interest = beginBalance * (self.amort_model._percent / 100) / 12
                 interest = self.calculateNU(interest)
-                if (month == self.amort_model._loanMonths - 1 and self.amort_model._loanMonths != 0):
+                if (month == self.amort_model._loanMonths - 1 and self.amort_model._loanMonths != 1):
                     # 05-01-1992 jam - do not execute if months = 1
                     payment = round(beginBalance + interest, 2)
                     principle = beginBalance
@@ -52,22 +51,21 @@ class Amort_Controller:
                     # REM IF (B@(2) > 1.1 * A@(4)) OR (B@(2) < .9 * A@(4)) THEN
                     # yes, the original code was BASIC, with poorly named variables
                     if (abs(payment - interest - endBalance) > .01):
-                        badMonthAmount = True
+                        print("payment: " + str(payment))
+                        print("interest: " + str(interest))
+                        print("end balance: " + str(endBalance))
+                        raise ValueError("Payment less interest less ending balance is greater than zero.")
                 else:
                     principle = round(payment - interest, 2)
                 endBalance = round(beginBalance - principle, 2)
+                print("month: " + str(month + 1))
+                print("begin balance: " + str(beginBalance))
+                print("payment: " + str(payment))
+                print("interest: " + str(interest))
+                print("principle: " + str(principle))
+                print("end balance: " + str(endBalance))
                 if (endBalance < 0):
-                    badMonthAmount = True
-            print("month: " + str(month + 1))
-            print("begin balance: " + str(beginBalance))
-            print("payment: " + str(payment))
-            print("interest: " + str(interest))
-            print("principle: " + str(principle))
-            print("end balance: " + str(endBalance))
-            # or maybe I need an ASSERT here
-            if (badMonthAmount == True):
-                print("error! a bad month amount exists")
-                
+                    raise ValueError("Ending balance is less than zero.")          
 
     # if percent, loan amount and number months are set
     # recalculate monthly payment
@@ -85,6 +83,10 @@ class Amort_Controller:
         if (self.amort_model._calcPayment > 0):
             self.amortize()
 
+    # compare response to Quit or Exit
+    def CheckForQuit(self, response):
+        return (response.lower()[:4] == 'quit' or response.lower()[:4] == 'exit')
+    
     # the main application
     # prompt user
     # perform calculations
@@ -97,35 +99,35 @@ class Amort_Controller:
                 break
             elif response[:1] == '1':
                 response = self.amort_view.promptUser('Enter %s' % self.amort_view.LABEL_LINE_1)
-                if response.lower()[:4] == 'quit' or response.lower()[:4] == 'exit':
+                if self.CheckForQuit(response) == True:
                     break
                 self.amort_model.Title = response
             elif response[:1] == '2':
                 response = self.amort_view.promptUser('Enter %s' % self.amort_view.LABEL_LINE_2)
-                if response.lower()[:4] == 'quit' or response.lower()[:4] == 'exit':
+                if self.CheckForQuit(response) == True:
                     break
                 self.amort_model.StartDate = response
             elif response[:1] == '3':
                 response = self.amort_view.promptUser('Enter %s' % self.amort_view.LABEL_LINE_3)
-                if response.lower()[:4] == 'quit' or response.lower()[:4] == 'exit':
+                if self.CheckForQuit(response) == True:
                     break
                 self.amort_model.Months = response
                 self.calculateMonthlyPayment()
             elif response[:1] == '4':
                 response = self.amort_view.promptUser('Enter %s' % self.amort_view.LABEL_LINE_4)
-                if response.lower()[:4] == 'quit' or response.lower()[:4] == 'exit':
+                if self.CheckForQuit(response) == True:
                     break
                 self.amort_model.Amount = response
                 self.calculateMonthlyPayment()
             elif response[:1] == '5':
                 response = self.amort_view.promptUser('Enter %s' % self.amort_view.LABEL_LINE_5)
-                if response.lower()[:4] == 'quit' or response.lower()[:4] == 'exit':
+                if self.CheckForQuit(response) == True:
                     break
                 self.amort_model.APR = response
                 self.calculateMonthlyPayment()
             elif response[:1] == '6':
                 response = self.amort_view.promptUser('Enter %s' % self.amort_view.LABEL_LINE_7)
-                if response.lower()[:4] == 'quit' or response.lower()[:4] == 'exit':
+                if self.CheckForQuit(response) == True:
                     break
                 self.amort_model.Override = response
                 self.calculateMonthlyPayment()
