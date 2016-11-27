@@ -26,6 +26,13 @@ class Amort_View:
         response = input (msg + ' ')
         return response
 
+    # prompt user last day of month
+    def promptUserLastDayOfMonth(self):
+        msg = 'Are all of the payments due on the last day of the month? (Yes/No)  '     
+        response = input (msg + ' ')
+        # return True if 'y', in case we have multiple language support
+        return response.lower()[:1] == 'y'
+
     # main menu response
     def mainMenuResponse(self):
         response = input ('Enter Number To Edit Or Q to quit.  ')

@@ -1,8 +1,11 @@
+import datetime
+
 class Amort_Controller:
     def __init__(self, amort_model, amort_view):
         self.amort_model = amort_model
         self.amort_view = amort_view
-
+        self._dateIsLastDayOfMonth = False
+        
     # never found out what NU stood for
     # this will round up the interest,
     # but only if it is more than zero 
@@ -86,7 +89,27 @@ class Amort_Controller:
     # compare response to Quit or Exit
     def CheckForQuit(self, response):
         return (response.lower()[:4] == 'quit' or response.lower()[:4] == 'exit')
-    
+
+    # if date can be last day of month
+    # ask if all dates are on the last day of the month
+    def CheckForLastDayOfMonth(self, dateEntered):
+        self._dateIsLastDayOfMonth = False
+        canBeLastDayOfMonth = False
+        myDate = datetime.datetime.strptime(dateEntered, '%Y-%m-%d')
+        if myDate.month == 2:
+            if myDate.year % 4 == 0:
+                canBeLastDayOfMonth = (myDate.day == 29)
+            else:
+                canBeLastDayOfMonth = (myDate.day == 28)
+        elif myDate.month == 4 or myDate.month == 6 or myDate.month == 9 or myDate.month == 11:
+            canBeLastDayOfMonth = (myDate.day == 30)
+        else:
+            canBeLastDayOfMonth = (myDate.day == 31)
+        if canBeLastDayOfMonth == True:
+            response = self.amort_view.promptUserLastDayOfMonth()
+            # here response is True or False
+            self._dateIsLastDayOfMonth = response
+
     # the main application
     # prompt user
     # perform calculations
@@ -107,6 +130,8 @@ class Amort_Controller:
                 if self.CheckForQuit(response) == True:
                     break
                 self.amort_model.StartDate = response
+                if (self.amort_model.StartDate == response):
+                    self.CheckForLastDayOfMonth(self.amort_model.StartDate)
             elif response[:1] == '3':
                 response = self.amort_view.promptUser('Enter %s' % self.amort_view.LABEL_LINE_3)
                 if self.CheckForQuit(response) == True:
