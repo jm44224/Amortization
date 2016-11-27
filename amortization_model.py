@@ -12,7 +12,20 @@ class Amort_Model:
         self._calcPayment = 0.00
         self._overridePayment = 0.00
 
-	# get / set Loan Amount, validate as a positive number
+    # validates that a given date is in the correct format
+    # validates that a given date is actually a date
+    def validateDate(self, date_text):
+        try:
+            datetime.datetime.strptime(date_text, '%Y-%m-%d')
+            return True
+        except ValueError as ve:
+            if ve.args[0].find('does not match format') != -1:
+                print("You must enter a date in the format of YYYY-MM-DD.")
+            elif ve.args[0].find('out of range for month') != -1:
+                print("You must enter a valid date.")
+        return False
+    
+    # get / set Loan Amount, validate as a positive number
     @property
     def Amount(self):
         return self._loanAmount
