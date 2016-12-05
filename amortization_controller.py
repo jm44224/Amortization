@@ -24,7 +24,7 @@ class Amort_Controller:
         badMonthAmount = False
         beginBalance = self.amort_model._loanAmount
         payment = 0
-        principle = 0
+        principal = 0
         interest = 0
         endBalance = 0
         # this should not be needed
@@ -39,17 +39,17 @@ class Amort_Controller:
                 interest = beginBalance * (self.amort_model._percent / 100) / 12
                 interest = self.calculateNU(interest)
                 payment = round(endBalance + interest, 2)
-                principle = round(payment - interest, 2)
+                principal = round(payment - interest, 2)
                 endBalance = 0
             else:
-                beginBalance = round(beginBalance - principle, 2)
+                beginBalance = round(beginBalance - principal, 2)
                 payment = paymentPlanned
                 interest = beginBalance * (self.amort_model._percent / 100) / 12
                 interest = self.calculateNU(interest)
                 if (month == self.amort_model._loanMonths - 1 and self.amort_model._loanMonths != 1):
                     # 05-01-1992 jam - do not execute if months = 1
                     payment = round(beginBalance + interest, 2)
-                    principle = beginBalance
+                    principal = beginBalance
                     # allow balloon payments if balance is greater than zero  11/14 jam
                     # REM IF (B@(2) > 1.1 * A@(4)) OR (B@(2) < .9 * A@(4)) THEN
                     # yes, the original code was BASIC, with poorly named variables
@@ -59,13 +59,13 @@ class Amort_Controller:
                         print("end balance: " + str(endBalance))
                         raise ValueError("Payment less interest less ending balance is greater than zero.")
                 else:
-                    principle = round(payment - interest, 2)
-                endBalance = round(beginBalance - principle, 2)
+                    principal = round(payment - interest, 2)
+                endBalance = round(beginBalance - principal, 2)
                 print("month: " + str(month + 1))
                 print("begin balance: " + str(beginBalance))
                 print("payment: " + str(payment))
                 print("interest: " + str(interest))
-                print("principle: " + str(principle))
+                print("principal: " + str(principal))
                 print("end balance: " + str(endBalance))
                 if (endBalance < 0):
                     raise ValueError("Ending balance is less than zero.")          

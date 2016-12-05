@@ -4,7 +4,7 @@ class Amort_MonthPayment:
         self._paymentDate = ""
         self._beginBalance = 0.00
         self._payment = 0.00
-        self._principle = 0.00
+        self._principal = 0.00
         self._interest = 0.00
         self._endBalance = 0.00
 
@@ -32,13 +32,13 @@ class Amort_MonthPayment:
     def Payment(self, value):
         self._payment = round(float(value), 2)
 
-    # get / set Principle
+    # get / set principal
     @property
-    def Principle(self):
-        return self._principle
-    @Principle.setter
-    def Principle(self, value):
-        self._principle = round(float(value), 2)
+    def principal(self):
+        return self._principal
+    @principal.setter
+    def principal(self, value):
+        self._principal = round(float(value), 2)
 
     # get / set Interest
     @property
