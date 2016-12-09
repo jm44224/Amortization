@@ -34,10 +34,10 @@ class Amort_MonthPayment:
 
     # get / set principal
     @property
-    def principal(self):
+    def Principal(self):
         return self._principal
-    @principal.setter
-    def principal(self, value):
+    @Principal.setter
+    def Principal(self, value):
         self._principal = round(float(value), 2)
 
     # get / set Interest
