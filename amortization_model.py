@@ -5,7 +5,7 @@ class Amort_Model:
     def __init__ (self):
         # initialize variables
         self._title = ""
-        self._startDate = datetime.date.today()
+        self._startDate = str(datetime.date.today())
         self._loanMonths = 0
         self._loanAmount = 0.00
         self._percent = 0.0000
