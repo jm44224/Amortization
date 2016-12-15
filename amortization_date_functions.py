@@ -10,7 +10,7 @@ DATE_FORMAT = '%Y-%m-%d'
 
 # validates that a given date is in the correct format
 # validates that a given date is actually a date
-def ValidateDate(date_text):
+def validate_date(date_text):
     try:
         datetime.datetime.strptime(date_text, DATE_FORMAT)
         return True
@@ -25,13 +25,16 @@ def CanBeLastDayOfMonth(dateEntered):
             canBeLastDayOfMonth = (myDate.day == 29)
         else:
             canBeLastDayOfMonth = (myDate.day == 28)
-    elif myDate.month == 4 or myDate.month == 6 or myDate.month == 9 or myDate.month == 11:
+    elif (myDate.month == 4 
+            or myDate.month == 6 
+            or myDate.month == 9 
+            or myDate.month == 11):
         canBeLastDayOfMonth = (myDate.day == 30)
     else:
         canBeLastDayOfMonth = (myDate.day == 31)
     return canBeLastDayOfMonth
 
-def NumberDaysInMonth(date):
+def number_days_in_month(date):
     # start at the 31st, work backwards
     calDay = 31
     while True:
@@ -41,12 +44,12 @@ def NumberDaysInMonth(date):
         except ValueError:
             calDay -= 1
             
-def AddMonths(date_text, numberMonths, use_last_day):
-    startdate = datetime.datetime.strptime(date_text, DATE_FORMAT)
+def add_months(date_text, numberMonths, use_last_day):
+    start_date = datetime.datetime.strptime(date_text, DATE_FORMAT)
     # preserve day
-    preserve_day = startdate.day
+    preserve_day = start_date.day
     # create variable
-    date = startdate
+    date = start_date
     
     # set day to be 1st
     if preserve_day != 1:
@@ -55,12 +58,12 @@ def AddMonths(date_text, numberMonths, use_last_day):
     # TODO - optimize this by creating a one-time array
     for z in range(0, numberMonths):    
         # get days of this month
-        days_in_this_month = NumberDaysInMonth(date)
+        days_in_this_month = number_days_in_month(date)
         # add days to get desired month
         date += datetime.timedelta(days=days_in_this_month)
     # date is now the first day of the desired month
     if (use_last_day == True):
-        days_in_this_month = NumberDaysInMonth(date)
+        days_in_this_month = number_days_in_month(date)
         date = date.replace(day=days_in_this_month)
         return date.strftime(DATE_FORMAT)
     else:
