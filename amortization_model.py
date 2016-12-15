@@ -1,5 +1,5 @@
 import datetime
-import amortization_date_functions
+from amortization_date_functions import validate_date
 
 class Amort_Model:
     def __init__ (self):
@@ -68,7 +68,21 @@ class Amort_Model:
                 raise ValueError
         except ValueError:
             raise ValueError
-
+        
+    # get / set Calculated Payment, validate as a positive number
+    @property
+    def Payment(self):
+        return self._calcPayment
+    @Payment.setter
+    def Payment(self, value):
+        try:
+            if float(value) >=0.00:
+                self._calcPayment  = round(float(value), 2)
+            else:
+                raise ValueError
+        except ValueError:
+            raise ValueError
+        
     # get / set Start Date of Payment, validate as a valid date format
     # this is not yet used            
     @property
@@ -77,7 +91,7 @@ class Amort_Model:
     @StartDate.setter
     def StartDate(self, value):
         try:
-            if amortization_date_functions.ValidateDate(value) == True:
+            if validate_date(value) == True:
                 self._startDate = value
         except ValueError:
             raise 
