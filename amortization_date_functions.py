@@ -14,16 +14,12 @@ def ValidateDate(date_text):
     try:
         datetime.datetime.strptime(date_text, DATE_FORMAT)
         return True
-    except ValueError as ve:
-        if ve.args[0].find('does not match format') != -1:
-            raise ValueError("You must enter a date in the format of YYYY-MM-DD.")
-        elif ve.args[0].find('out of range for month') != -1:
-            raise ValueError("You must enter a valid date.")
-        raise ValueError
+    except ValueError:
+        raise
     
 def CanBeLastDayOfMonth(dateEntered):
     canBeLastDayOfMonth = False
-    myDate = datetime.datetime.strptime(dateEntered, '%Y-%m-%d')
+    myDate = datetime.datetime.strptime(dateEntered, DATE_FORMAT)
     if myDate.month == 2:
         if myDate.year % 4 == 0:
             canBeLastDayOfMonth = (myDate.day == 29)

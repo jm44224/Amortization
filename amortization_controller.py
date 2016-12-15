@@ -61,26 +61,15 @@ class Amort_Controller:
                     # REM IF (B@(2) > 1.1 * A@(4)) OR (B@(2) < .9 * A@(4)) THEN
                     # yes, the original code was BASIC, with poorly named variables
                     if (abs(currentMonth.Payment - currentMonth.Interest - currentMonth.EndBalance) > .01):
-                        print("month: " + str(month + 1))
-                        print("begin balance: " + str(currentMonth.BeginBalance))
-                        print("payment: " + str(currentMonth.Payment))
-                        print("interest: " + str(currentMonth.Interest))
-                        print("principal: " + str(currentMonth.Principal))
-                        print("end balance: " + str(currentMonth.EndBalance))
-                        raise ValueError("Payment less interest less ending balance is greater than zero.")
+                        self.amort_view.printCurrentMonth(currentMonth)
+                        raise ValueError(self.amort_view.AMORT_ERROR_TOTAL_SUM_GREATER_THAN_ZERO)
                 else:
                     currentMonth.Principal = round(currentMonth.Payment - currentMonth.Interest, 2)
                 currentMonth.EndBalance = round(currentMonth.BeginBalance - currentMonth.Principal, 2)
-                print("month: " + str(month + 1))
-                print("date: " + str(currentMonth.PaymentDate))
-                print("begin balance: " + str(currentMonth.BeginBalance))
-                print("payment: " + str(currentMonth.Payment))
-                print("interest: " + str(currentMonth.Interest))
-                print("principal: " + str(currentMonth.Principal))
-                print("end balance: " + str(currentMonth.EndBalance))
+                self.amort_view.printCurrentMonth(currentMonth)
                 beginBalance = endBalance = currentMonth.EndBalance
                 if (currentMonth.EndBalance < 0):
-                    raise ValueError("Ending balance is less than zero.")          
+                    raise ValueError(self.amort_view.AMORT_ERROR_END_BAL_LESS_THAN_ZERO)          
 
     # if percent, loan amount and number months are set
     # recalculate monthly payment
@@ -100,7 +89,7 @@ class Amort_Controller:
 
     # compare response to Quit or Exit
     def CheckForQuit(self, response):
-        return (response.lower()[:4] == 'quit' or response.lower()[:4] == 'exit')
+        return (response.lower()[:4] == self.amort_view.EDIT_PROMPT_QUIT or response.lower()[:4] == self.amort_view.EDIT_PROMPT_EXIT)
 
     # if date can be last day of month
     # ask if all dates are on the last day of the month
@@ -120,15 +109,15 @@ class Amort_Controller:
         while True:
             self.amort_view.printValues(self.amort_model)
             response = self.amort_view.mainMenuResponse()
-            if response.lower()[:1] == 'q':
+            if response.lower()[:1] == self.amort_view.MENU_PROMPT_QUIT:
                 break
             elif response[:1] == '1':
-                response = self.amort_view.promptUser('Enter %s' % self.amort_view.LABEL_LINE_1)
+                response = self.amort_view.promptUserToEnter(self.amort_view.LABEL_LINE_1)
                 if self.CheckForQuit(response) == True:
                     break
                 self.amort_model.Title = response
             elif response[:1] == '2':
-                response = self.amort_view.promptUser('Enter %s' % self.amort_view.LABEL_LINE_2)
+                response = self.amort_view.promptUserToEnter(self.amort_view.LABEL_LINE_2)
                 if self.CheckForQuit(response) == True:
                     break
                 try:
@@ -137,44 +126,46 @@ class Amort_Controller:
                         self.CheckForLastDayOfMonth(self.amort_model.StartDate)
                         self.calculateMonthlyPayment()
                 except ValueError as ve:
-                    try:
-                        print (ve.args[0])
-                    except:
-                        print(str(response) + " is not a valid start date (YYYY-MM-DD).")
+                    if ve.args[0].find(self.amort_view.DATA_ERROR_INVALID_DATE_FORMAT_CHECK) != -1:
+                        self.amort_view.printFeedback(self.amort_view.DATA_ERROR_INVALID_DATE_FORMAT + ' (' + self.amort_view.REQUIRED_DATE_FORMAT + ')')
+                    elif ve.args[0].find(self.amort_view.DATA_ERROR_INVALID_DATE_CHECK) != -1:
+                        self.amort_view.printFeedback(slef.amort_view.DATA_ERROR_INVALID_DATE)
+                    else:
+                        self.amort_view.printFeedback(self.amort_view.DATA_ERROR_INVALID_DATE)
             elif response[:1] == '3':
-                response = self.amort_view.promptUser('Enter %s' % self.amort_view.LABEL_LINE_3)
+                response = self.amort_view.promptUserToEnter(self.amort_view.LABEL_LINE_3)
                 if self.CheckForQuit(response) == True:
                     break
                 try:
                     self.amort_model.Months = response
                     self.calculateMonthlyPayment()
                 except ValueError:
-                    print(str(response) + " is not a valid number for months (minimum of 1).")
+                    self.amort_view.printFeedback(self.amort_view.DATA_ERROR_INVALID_MONTHS)
             elif response[:1] == '4':
-                response = self.amort_view.promptUser('Enter %s' % self.amort_view.LABEL_LINE_4)
+                response = self.amort_view.promptUserToEnter(self.amort_view.LABEL_LINE_4)
                 if self.CheckForQuit(response) == True:
                     break
                 try:
                     self.amort_model.Amount = response
                     self.calculateMonthlyPayment()
                 except ValueError:
-                    print(str(response) + " is not a valid number for amount (minimum of 0.01).")
+                    self.amort_view.printFeedback(self.amort_view.DATA_ERROR_INVALID_AMOUNT)
             elif response[:1] == '5':
-                response = self.amort_view.promptUser('Enter %s' % self.amort_view.LABEL_LINE_5)
+                response = self.amort_view.promptUserToEnter(self.amort_view.LABEL_LINE_5)
                 if self.CheckForQuit(response) == True:
                     break
                 try:
                     self.amort_model.APR = response
                     self.calculateMonthlyPayment()
                 except ValueError:
-                    print(str(response) + " is not a valid number for percentage (0.0000 to 100.0000).")
+                    self.amort_view.printFeedback(self.amort_view.DATA_ERROR_INVALID_PERCENTAGE)
             elif response[:1] == '6':
-                response = self.amort_view.promptUser('Enter %s' % self.amort_view.LABEL_LINE_7)
+                response = self.amort_view.promptUserToEnter(self.amort_view.LABEL_LINE_7)
                 if self.CheckForQuit(response) == True:
                     break
                 try:
                     self.amort_model.Override = response
                     self.calculateMonthlyPayment()
                 except ValueError:
-                    print (str(response) + " is not a valid number for payment override (minimum of 0.01).")
+                    self.amort_view.printFeedback(self.amort_view.DATA_ERROR_INVALID_OVERRIDE)
 
