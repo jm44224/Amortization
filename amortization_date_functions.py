@@ -17,11 +17,34 @@ def validate_date(date_text):
     except ValueError:
         raise
     
+"""
+https://support.microsoft.com/en-us/kb/214019
+To determine whether a year is a leap year, follow these steps:
+1 If the year is evenly divisible by 4, go to step 2. Otherwise, go to step 5.
+2 If the year is evenly divisible by 100, go to step 3. Otherwise, go to step 4.
+3 If the year is evenly divisible by 400, go to step 4. Otherwise, go to step 5.
+4 The year is a leap year (it has 366 days).
+5 The year is not a leap year (it has 365 days).
+
+"""    
+def IsLeapYear(year):
+    # If the year is NOT evenly divisible by 4, it is NOT a leap year
+    if year % 4 != 0:
+        return False
+    # If the year is NOT evenly divisible by 100, it IS a leap year
+    if year % 100 != 0:
+        return True
+    # If the year is evenly divisible by 400, it IS a leap year
+    if year % 400 == 0:
+        return True
+    # else, it is NOT a leap year
+    return False
+    
 def CanBeLastDayOfMonth(dateEntered):
     canBeLastDayOfMonth = False
     myDate = datetime.datetime.strptime(dateEntered, DATE_FORMAT)
     if myDate.month == 2:
-        if myDate.year % 4 == 0:
+        if IsLeapYear(myDate.year):
             canBeLastDayOfMonth = (myDate.day == 29)
         else:
             canBeLastDayOfMonth = (myDate.day == 28)
