@@ -142,8 +142,16 @@ class AmortizationController:
             if response == self.view.MENU_PROMPT_QUIT:
                 break
             elif response == self.view.MENU_PROMPT_PRINT:
+                self.view.print_output_header()
+                total_payments = 0
+                total_interest = 0
+                total_principal = 0
                 for i in range(len(self.payment_list)):
+                    total_payments += self.payment_list[i].calculated_payment
+                    total_interest += self.payment_list[i].interest
+                    total_principal += self.payment_list[i].principal
                     self.view.print_curr_month(self.payment_list[i])
+                self.view.print_output_footer(total_payments, total_interest, total_principal)
             elif response == '1':
                 response = self.view.user_input(self.view.LBL_LN_1)
                 if self.check_for_quit(response):
@@ -159,16 +167,12 @@ class AmortizationController:
                         self.check_for_last_day_of_month(self.model.start_date)
                         self.calculate_monthly_payment()
                 except ValueError as ve:
-                    if (ve.args[0].find(
-                            self.view.ERR_INV_DATE_FORMAT_CHECK) != -1):
-                        self.view.print_msg(
-                            self.view.ERR_INV_DATE_FORMAT
-                            + ' (' + self.view.REQ_DATE_FMT + ')')
-                    elif (ve.args[0].find(
-                            self.view.ERR_INV_DATE_CHECK) != -1):
-                        self.view.print_msg(self.view.ERR_INV_DATE)
+                    if ve.args[0].find(self.view.ERR_INV_DATE_FORMAT_CHECK) != -1:
+                        print(self.view.ERR_INV_DATE_FORMAT + ' (' + self.view.REQ_DATE_FMT + ')')
+                    elif ve.args[0].find(self.view.ERR_INV_DATE_CHECK) != -1:
+                        print(self.view.ERR_INV_DATE)
                     else:
-                        self.view.print_msg(self.view.ERR_INV_DATE)
+                        print(self.view.ERR_INV_DATE)
             elif response == '3':
                 response = self.view.user_input(self.view.LBL_LN_3)
                 if self.check_for_quit(response):
@@ -176,8 +180,7 @@ class AmortizationController:
                 try:
                     self.model.loan_months = response
                 except ValueError:
-                    self.view.print_msg(self.view.ERR_INV_MONTHS)
-                    break
+                    print(self.view.ERR_INV_MONTHS)
                 self.calculate_monthly_payment()
             elif response == '4':
                 response = self.view.user_input(self.view.LBL_LN_4)
@@ -186,8 +189,7 @@ class AmortizationController:
                 try:
                     self.model.loan_amount = response
                 except ValueError:
-                    self.view.print_msg(self.view.ERR_INV_AMOUNT)
-                    break
+                    print(self.view.ERR_INV_AMOUNT)
                 self.calculate_monthly_payment()
             elif response == '5':
                 response = self.view.user_input(self.view.LBL_LN_5)
@@ -196,8 +198,7 @@ class AmortizationController:
                 try:
                     self.model.annual_percentage_rate = response
                 except ValueError:
-                    self.view.print_msg(self.view.ERR_INV_PCT)
-                    break
+                    print(self.view.ERR_INV_PCT)
                 self.calculate_monthly_payment()
             elif response == '6':
                 response = self.view.user_input(self.view.LBL_LN_7)
@@ -206,6 +207,5 @@ class AmortizationController:
                 try:
                     self.model.override_payment = response
                 except ValueError:
-                    self.view.print_msg(self.view.ERR_INV_OVERRIDE)
-                    break
+                    print(self.view.ERR_INV_OVERRIDE)
                 self.calculate_monthly_payment()

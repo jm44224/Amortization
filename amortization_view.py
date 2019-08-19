@@ -41,21 +41,28 @@ class AmortizationView:
         print("  ( ) %s %.2f" % (self.LBL_LN_6, model.calculated_payment))
         print("  (6) %s %.2f" % (self.LBL_LN_7, model.override_payment))
 
+
+    @staticmethod
+    def print_output_header():
+        print("PAYMENT DATE   BEGIN BAL     PAYMENT    INTEREST   PRINCIPAL     END BAL")
+
+    @staticmethod
+    def print_output_footer(total_payments, total_interest, total_principal):
+        print("                         " +
+              f"{total_payments:11.2f} " +
+              f"{total_interest:11.2f} " +
+              f"{total_principal:11.2f}")
+
     # prints current month values
     @staticmethod
     def print_curr_month(current_month):
-        print("date: " + str(current_month.payment_date))
-        print("begin balance: " + str(current_month.beginning_balance))
-        print("payment: " + str(current_month.payment))
-        print("interest: " + str(current_month.interest))
-        print("principal: " + str(current_month.principal))
-        print("end balance: " + str(current_month.ending_balance))
-                
-    # prints feedback
-    @staticmethod
-    def print_msg(msg):
-        print(msg)
-    
+        print(f"  {str(current_month.payment_date)} " +
+              f"{current_month.beginning_balance:11.2f} " +
+              f"{current_month.calculated_payment:11.2f} " +
+              f"{current_month.interest:11.2f} " +
+              f"{current_month.principal:11.2f} " +
+              f"{current_month.ending_balance:11.2f}")
+
     # accepts input for any line
     def user_input(self, msg):
         print(self.EDIT_PROMPT)        
