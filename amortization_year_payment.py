@@ -1,5 +1,8 @@
-﻿class Amort_YearPayment:
-    def __init__ (self):
+﻿from amortization_month_payment import AmortizationMonthPayment
+
+
+class AmortizationYearPayment:
+    def __init__(self):
         # initialize variables
         self._year = ""
         self.__totalPayments = 0.00
@@ -18,20 +21,21 @@
         self._month11 = None
         self._month12 = None
 
-	# get / set Year
+    # get / set Year
     @property
-    def Year(self):
+    def year(self):
         return self._year
-    @Year.setter
-    def Year(self, value):
+
+    @year.setter
+    def year(self, value):
         self._year = value
 
-	# get / set Month01
+    # get / set Month01
     @property
-    def Month01(self):
-        return self._year
-    @Year.setter
-    def Month01(self, value):
-		if isinstance(value, Amort_MonthPayment)
-        self._month01 = value
-		
+    def month_01(self):
+        return self._month01
+
+    @month_01.setter
+    def month_01(self, value):
+        if isinstance(value, AmortizationMonthPayment):
+            self._month01 = value

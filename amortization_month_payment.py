@@ -1,5 +1,5 @@
-class Amort_MonthPayment:
-    def __init__ (self):
+class AmortizationMonthPayment:
+    def __init__(self):
         # initialize variables
         self._paymentDate = ""
         self._beginBalance = 0.00
@@ -10,49 +10,55 @@ class Amort_MonthPayment:
 
     # get / set Payment Date (or Month Number)
     @property
-    def PaymentDate(self):
+    def payment_date(self):
         return self._paymentDate
-    @PaymentDate.setter
-    def PaymentDate(self, value):
+
+    @payment_date.setter
+    def payment_date(self, value):
         self._paymentDate = value
 
     # get / set Begin Balance
     @property
-    def BeginBalance(self):
+    def beginning_balance(self):
         return self._beginBalance
-    @BeginBalance.setter
-    def BeginBalance(self, value):
+
+    @beginning_balance.setter
+    def beginning_balance(self, value):
         self._beginBalance = round(float(value), 2)
 
     # get / set Payment
     @property
-    def Payment(self):
+    def payment(self):
         return self._payment
-    @Payment.setter
-    def Payment(self, value):
+
+    @payment.setter
+    def payment(self, value):
         self._payment = round(float(value), 2)
 
     # get / set principal
     @property
-    def Principal(self):
+    def principal(self):
         return self._principal
-    @Principal.setter
-    def Principal(self, value):
+
+    @principal.setter
+    def principal(self, value):
         self._principal = round(float(value), 2)
 
     # get / set Interest
     @property
-    def Interest(self):
+    def interest(self):
         return self._interest
-    @Interest.setter
-    def Interest(self, value):
+
+    @interest.setter
+    def interest(self, value):
         self._interest = round(float(value), 2)
 
     # get / set End Balance
     @property
-    def EndBalance(self):
+    def ending_balance(self):
         return self._endBalance
-    @EndBalance.setter
-    def EndBalance(self, value):
+
+    @ending_balance.setter
+    def ending_balance(self, value):
         self._endBalance = round(float(value), 2)
 

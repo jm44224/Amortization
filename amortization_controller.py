@@ -1,19 +1,21 @@
 import datetime
-from amortization_month_payment import Amort_MonthPayment
+from amortization_month_payment import AmortizationMonthPayment
 from amortization_date_functions import add_months
-from amortization_date_functions import CanBeLastDayOfMonth
+from amortization_date_functions import can_be_last_day_of_month
 
-class Amort_Controller:
-    def __init__(self, amort_model, amort_view):
-        self.model = amort_model
-        self.view = amort_view
+
+class AmortizationController:
+    def __init__(self, amortization_model, amortization_view):
+        self.model = amortization_model
+        self.view = amortization_view
         self._dateIsLastDayOfMonth = False
-      
+
     # never found out what NU stood for
     # this will round up the interest,
-    # but only if it is more than zero 
-    def calculateNU(self, nu):
-        if (abs(nu) < .01):
+    # but only if it is more than zero
+    @staticmethod
+    def calculate_nu(nu):
+        if abs(nu) < .01:
             nu = 0
         else:
             nu *= 100
@@ -24,117 +26,104 @@ class Amort_Controller:
     # this is the first step of calculation
     # it will be improved in the future
     def amortize(self):
-        badMonthAmount = False
-        beginBalance = self.model.Amount
-        endBalance = 0
-        startDate = self.model.StartDate
+        beginning_balance = self.model.loan_amount
+        ending_balance = 0
+        start_date = self.model.start_date
         # this should not be needed
         # calcPayment is set to overridePayment
-        if (self.model.Override > 0):
-            paymentPlanned = self.model.Override
+        if self.model.override_payment > 0:
+            payment_planned = self.model.override_payment
         else:
-            paymentPlanned = self.model.Payment
-        for month in range(0, self.model.Months):
-            currMonth = Amort_MonthPayment()
-            currMonth.Payment = 0
-            currMonth.Principal = 0
-            currMonth.Interest = 0
-            currMonth.EndBalance = endBalance
-            currMonth.PaymentDate = \
-                add_months(startDate, month, self._dateIsLastDayOfMonth)
-            if (currMonth.Payment > currMonth.EndBalance 
-                    and currMonth.EndBalance > 0):
-                currMonth.BeginBalance = \
-                    currMonth.EndBalance
-                currMonth.Interest = (
-                    currMonth.BeginBalance 
-                    * (self.model.APR / 100) 
-                    / 12)
-                currMonth.Interest = \
-                    self.calculateNU(currMonth.Interest)
-                currMonth.Payment = \
-                    round(currMonth.EndBalance + currMonth.Interest, 2)
-                currMonth.Principal = \
-                    round(currMonth.Payment - currMonth.Interest, 2)
-                currMonth.EndBalance = 0
-            else:
-                currMonth.BeginBalance = \
-                    round(beginBalance - currMonth.Principal, 2)
-                currMonth.Payment = \
-                    paymentPlanned
-                currMonth.Interest = \
-                    (currMonth.BeginBalance 
-                        * (self.model.APR / 100) 
+            payment_planned = self.model.calculated_payment
+        for month in range(0, self.model.loan_months):
+            current_month = AmortizationMonthPayment()
+            current_month.calculated_payment = 0
+            current_month.principal = 0
+            current_month.interest = 0
+            current_month.ending_balance = ending_balance
+            current_month.payment_date = \
+                add_months(start_date, month, self._dateIsLastDayOfMonth)
+            if current_month.calculated_payment > current_month.ending_balance > 0:
+                current_month.beginning_balance = \
+                    current_month.ending_balance
+                current_month.interest = (
+                        current_month.beginning_balance
+                        * (self.model.annual_percentage_rate / 100)
                         / 12)
-                currMonth.Interest = \
-                    self.calculateNU(currMonth.Interest)
-                if (month == self.model.Months - 1 
-                        and self.model.Months != 1):
+                current_month.interest = \
+                    self.calculate_nu(current_month.interest)
+                current_month.calculated_payment = \
+                    round(current_month.ending_balance + current_month.interest, 2)
+                current_month.principal = \
+                    round(current_month.calculated_payment - current_month.interest, 2)
+                current_month.ending_balance = 0
+            else:
+                current_month.beginning_balance = \
+                    round(beginning_balance - current_month.principal, 2)
+                current_month.calculated_payment = \
+                    payment_planned
+                current_month.interest = \
+                    (current_month.beginning_balance
+                     * (self.model.annual_percentage_rate / 100)
+                     / 12)
+                current_month.interest = \
+                    self.calculate_nu(current_month.interest)
+                if (month == self.model.loan_months - 1
+                        and self.model.loan_months != 1):
                     # 05-01-1992 jam - do not execute if months = 1
-                    currMonth.Payment = \
-                        round(currMonth.BeginBalance + currMonth.Interest, 2)
-                    currMonth.Principal = \
-                        currMonth.BeginBalance
+                    current_month.calculated_payment = \
+                        round(current_month.beginning_balance + current_month.interest, 2)
+                    current_month.principal = \
+                        current_month.beginning_balance
                     # allow balloon payments if balance is greater than zero  
                     # 11/14 jam
                     # REM IF (B@(2) > 1.1 * A@(4)) OR (B@(2) < .9 * A@(4)) THEN
                     # yes, the original code was BASIC, 
                     # with poorly named variables
-                    if (abs(currMonth.Payment 
-                                - currMonth.Interest 
-                                - currMonth.EndBalance) > .01):
-                        self.view.print_curr_month(currMonth)
+                    if (abs(current_month.calculated_payment
+                            - current_month.interest
+                            - current_month.ending_balance) > .01):
+                        self.view.print_curr_month(current_month)
                         raise ValueError(self.view.ERR_TOTAL_GT_ZERO)
                 else:
-                    currMonth.Principal = \
-                        round(currMonth.Payment - currMonth.Interest, 2)
-                currMonth.EndBalance = \
-                    round(currMonth.BeginBalance - currMonth.Principal, 2)
-                self.view.print_curr_month(currMonth)
-                beginBalance = endBalance = currMonth.EndBalance
-                if (currMonth.EndBalance < 0):
-                    raise ValueError(self.view.ERR_ENDBAL_LT_ZERO)          
+                    current_month.principal = \
+                        round(current_month.calculated_payment - current_month.interest, 2)
+                current_month.ending_balance = \
+                    round(current_month.beginning_balance - current_month.principal, 2)
+                self.view.print_curr_month(current_month)
+                beginning_balance = ending_balance = current_month.ending_balance
+                if current_month.ending_balance < 0:
+                    raise ValueError(self.view.ERR_ENDBAL_LT_ZERO)
 
-    # if percent, loan amount and number months are set
+                    # if percent, loan amount and number months are set
+
     # recalculate monthly payment
     # and calculate the entire loan
-    def calculateMonthlyPayment(self):
-        self.model.Payment = 0.0
-        if (self.model.Override > 0.0):
-            self.model.Payment = self.model.Override
-        elif (self.model.Months > 0 
-                and self.model.Amount > 0):
-            if (self.model.APR == 0.0):
-                self.model.Payment = \
-                    round( self.model.Amount 
-                            / self.model.Months
-                        , 2)
+    def calculate_monthly_payment(self):
+        self.model.calculated_payment = 0.0
+        if self.model.override_payment > 0.0:
+            self.model.calculated_payment = self.model.override_payment
+        elif self.model.loan_months > 0 and self.model.loan_amount > 0:
+            if self.model.annual_percentage_rate == 0.0:
+                self.model.calculated_payment = round(self.model.loan_amount / self.model.loan_months, 2)
             else:
-                monthlyPercent = self.model.APR / 100.0 / 12.0
-                self.model.Payment = \
-                    round(self.model.Amount 
-                            * (monthlyPercent 
-                                / (1 - (
-                                        (1 + monthlyPercent) 
-                                            ** (-1 * self.model.Months)
-                                        )
-                                    )
-                                )
-                        , 2)
-        if (self.model.Payment > 0):
+                monthly_percent = self.model.annual_percentage_rate / 100.0 / 12.0
+                self.model.calculated_payment = \
+                    round(self.model.loan_amount *
+                          (monthly_percent / (1 - ((1 + monthly_percent) ** (-1 * self.model.loan_months)))), 2)
+        if self.model.calculated_payment > 0:
             self.amortize()
 
     # compare response to Quit or Exit
-    def CheckForQuit(self, response):
-        return (response.lower()[:4] == self.view.EDIT_PROMPT_QUIT 
+    def check_for_quit(self, response):
+        return (response.lower()[:4] == self.view.EDIT_PROMPT_QUIT
                 or response.lower()[:4] == self.view.EDIT_PROMPT_EXIT)
 
     # if date can be last day of month
     # ask if all dates are on the last day of the month
-    def CheckForLastDayOfMonth(self, dateEntered):
+    def check_for_last_day_of_month(self, date_entered):
         self._dateIsLastDayOfMonth = False
-        canBeLastDayOfMonth = CanBeLastDayOfMonth(dateEntered)
-        if canBeLastDayOfMonth == True:
+        if can_be_last_day_of_month(date_entered):
             response = self.view.user_input_is_last_day()
             # here response is True or False
             self._dateIsLastDayOfMonth = response
@@ -143,75 +132,74 @@ class Amort_Controller:
     # prompt user
     # perform calculations
     # display output
-    def RunAmort(self):
+    def run_amortization(self):
         while True:
             self.view.print_menu(self.model)
-            response = self.view.user_input_menu()
-            if response.lower()[:1] == self.view.MENU_PROMPT_QUIT:
+            response = self.view.user_input_menu().lower()[:1]
+            if response == self.view.MENU_PROMPT_QUIT:
                 break
-            elif response[:1] == '1':
+            elif response == '1':
                 response = self.view.user_input(self.view.LBL_LN_1)
-                if self.CheckForQuit(response) == True:
+                if self.check_for_quit(response):
                     break
-                self.model.Title = response
-            elif response[:1] == '2':
+                self.model.title = response
+            elif response == '2':
                 response = self.view.user_input(self.view.LBL_LN_2)
-                if self.CheckForQuit(response) == True:
+                if self.check_for_quit(response):
                     break
                 try:
-                    self.model.StartDate = response
-                    if (self.model.StartDate == response):
-                        self.CheckForLastDayOfMonth(self.model.StartDate)
-                        self.calculateMonthlyPayment()
+                    self.model.start_date = response
+                    if self.model.start_date == response:
+                        self.check_for_last_day_of_month(self.model.start_date)
+                        self.calculate_monthly_payment()
                 except ValueError as ve:
                     if (ve.args[0].find(
                             self.view.ERR_INV_DATE_FORMAT_CHECK) != -1):
                         self.view.print_msg(
-                            self.view.ERR_INV_DATE_FORMAT 
+                            self.view.ERR_INV_DATE_FORMAT
                             + ' (' + self.view.REQ_DATE_FMT + ')')
                     elif (ve.args[0].find(
                             self.view.ERR_INV_DATE_CHECK) != -1):
                         self.view.print_msg(self.view.ERR_INV_DATE)
                     else:
                         self.view.print_msg(self.view.ERR_INV_DATE)
-            elif response[:1] == '3':
+            elif response == '3':
                 response = self.view.user_input(self.view.LBL_LN_3)
-                if self.CheckForQuit(response) == True:
+                if self.check_for_quit(response):
                     break
                 try:
-                    self.model.Months = response
+                    self.model.loan_months = response
                 except ValueError:
                     self.view.print_msg(self.view.ERR_INV_MONTHS)
                     break
-                self.calculateMonthlyPayment()
-            elif response[:1] == '4':
+                self.calculate_monthly_payment()
+            elif response == '4':
                 response = self.view.user_input(self.view.LBL_LN_4)
-                if self.CheckForQuit(response) == True:
+                if self.check_for_quit(response):
                     break
                 try:
-                    self.model.Amount = response
+                    self.model.loan_amount = response
                 except ValueError:
                     self.view.print_msg(self.view.ERR_INV_AMOUNT)
                     break
-                self.calculateMonthlyPayment()
-            elif response[:1] == '5':
+                self.calculate_monthly_payment()
+            elif response == '5':
                 response = self.view.user_input(self.view.LBL_LN_5)
-                if self.CheckForQuit(response) == True:
+                if self.check_for_quit(response):
                     break
                 try:
-                    self.model.APR = response
+                    self.model.annual_percentage_rate = response
                 except ValueError:
                     self.view.print_msg(self.view.ERR_INV_PCT)
                     break
-                self.calculateMonthlyPayment()
-            elif response[:1] == '6':
+                self.calculate_monthly_payment()
+            elif response == '6':
                 response = self.view.user_input(self.view.LBL_LN_7)
-                if self.CheckForQuit(response) == True:
+                if self.check_for_quit(response):
                     break
                 try:
-                    self.model.Override = response
+                    self.model.override_payment = response
                 except ValueError:
                     self.view.print_msg(self.view.ERR_INV_OVERRIDE)
                     break
-                self.calculateMonthlyPayment()
-
+                self.calculate_monthly_payment()

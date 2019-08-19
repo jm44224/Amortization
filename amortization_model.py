@@ -1,8 +1,9 @@
 import datetime
 from amortization_date_functions import validate_date
 
-class Amort_Model:
-    def __init__ (self):
+
+class AmortizationModel:
+    def __init__(self):
         # initialize variables
         self._title = ""
         self._startDate = str(datetime.date.today())
@@ -14,13 +15,14 @@ class Amort_Model:
     
     # get / set Loan Amount, validate as a positive number
     @property
-    def Amount(self):
+    def loan_amount(self):
         return self._loanAmount
-    @Amount.setter
-    def Amount(self, value):
+
+    @loan_amount.setter
+    def loan_amount(self, value):
         try:
-            if float(value) >=0.01:
-                self._loanAmount  = round(float(value), 2)
+            if float(value) >= 0.01:
+                self._loanAmount = round(float(value), 2)
             else:
                 raise ValueError
         except ValueError:
@@ -28,12 +30,13 @@ class Amort_Model:
         
     # get / set Annual Percentage Rate, validate as a positive percentage         
     @property
-    def APR(self):
+    def annual_percentage_rate(self):
         return self._percent
-    @APR.setter
-    def APR(self, value):
+
+    @annual_percentage_rate.setter
+    def annual_percentage_rate(self, value):
         try:
-            if float(value) >=0.0 and float(value) <= 100.0:
+            if 0.0 <= float(value) <= 100.0:
                 value = round(float(value), 4)
                 self._percent = float(value)
             else:
@@ -43,12 +46,13 @@ class Amort_Model:
         
     # get / set Months of Loan, validate as a positive integer          
     @property
-    def Months(self):
+    def loan_months(self):
         return self._loanMonths
-    @Months.setter
-    def Months(self, value):
+
+    @loan_months.setter
+    def loan_months(self, value):
         try:
-            if int(value) >=1:
+            if int(value) >= 1:
                 self._loanMonths = int(value)
             else:
                 raise ValueError
@@ -57,13 +61,14 @@ class Amort_Model:
         
     # get / set Monthly Payment Override, validate as a positive number
     @property
-    def Override(self):
+    def override_payment(self):
         return self._overridePayment
-    @Override.setter
-    def Override(self, value):
+
+    @override_payment.setter
+    def override_payment(self, value):
         try:
-            if float(value) >=0.01:
-                self._overridePayment  = round(float(value), 2)
+            if float(value) >= 0.01:
+                self._overridePayment = round(float(value), 2)
             else:
                 raise ValueError
         except ValueError:
@@ -71,13 +76,14 @@ class Amort_Model:
         
     # get / set Calculated Payment, validate as a positive number
     @property
-    def Payment(self):
+    def calculated_payment(self):
         return self._calcPayment
-    @Payment.setter
-    def Payment(self, value):
+
+    @calculated_payment.setter
+    def calculated_payment(self, value):
         try:
-            if float(value) >=0.00:
-                self._calcPayment  = round(float(value), 2)
+            if float(value) >= 0.00:
+                self._calcPayment = round(float(value), 2)
             else:
                 raise ValueError
         except ValueError:
@@ -86,12 +92,13 @@ class Amort_Model:
     # get / set Start Date of Payment, validate as a valid date format
     # this is not yet used            
     @property
-    def StartDate(self):
+    def start_date(self):
         return self._startDate
-    @StartDate.setter
-    def StartDate(self, value):
+
+    @start_date.setter
+    def start_date(self, value):
         try:
-            if validate_date(value) == True:
+            if validate_date(value):
                 self._startDate = value
         except ValueError:
             raise 
@@ -99,9 +106,10 @@ class Amort_Model:
     # get / set Loan Title
     # this is not yet used    
     @property
-    def Title(self):
+    def title(self):
         return self._title
-    @Title.setter
-    def Title(self, value):
+
+    @title.setter
+    def title(self, value):
         self._title = str(value)
 

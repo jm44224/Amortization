@@ -8,6 +8,7 @@ Parameter to optionally select the last day of the month.
 """
 DATE_FORMAT = '%Y-%m-%d'
 
+
 # validates that a given date is in the correct format
 # validates that a given date is actually a date
 def validate_date(date_text):
@@ -16,7 +17,8 @@ def validate_date(date_text):
         return True
     except ValueError:
         raise
-    
+
+
 """
 https://support.microsoft.com/en-us/kb/214019
 To determine whether a year is a leap year, follow these steps:
@@ -25,9 +27,10 @@ To determine whether a year is a leap year, follow these steps:
 3 If the year is evenly divisible by 400, go to step 4. Otherwise, go to step 5.
 4 The year is a leap year (it has 366 days).
 5 The year is not a leap year (it has 365 days).
+"""
 
-"""    
-def IsLeapYear(year):
+
+def is_leap_year(year):
     # If the year is NOT evenly divisible by 4, it is NOT a leap year
     if year % 4 != 0:
         return False
@@ -39,35 +42,37 @@ def IsLeapYear(year):
         return True
     # else, it is NOT a leap year
     return False
-    
-def CanBeLastDayOfMonth(dateEntered):
-    canBeLastDayOfMonth = False
-    myDate = datetime.datetime.strptime(dateEntered, DATE_FORMAT)
-    if myDate.month == 2:
-        if IsLeapYear(myDate.year):
-            canBeLastDayOfMonth = (myDate.day == 29)
+
+
+def can_be_last_day_of_month(date_entered):
+    date_without_time = datetime.datetime.strptime(date_entered, DATE_FORMAT)
+    if date_without_time.month == 2:
+        if is_leap_year(date_without_time.year):
+            return_value = (date_without_time.day == 29)
         else:
-            canBeLastDayOfMonth = (myDate.day == 28)
-    elif (myDate.month == 4 
-            or myDate.month == 6 
-            or myDate.month == 9 
-            or myDate.month == 11):
-        canBeLastDayOfMonth = (myDate.day == 30)
+            return_value = (date_without_time.day == 28)
+    elif (date_without_time.month == 4
+            or date_without_time.month == 6
+            or date_without_time.month == 9
+            or date_without_time.month == 11):
+        return_value = (date_without_time.day == 30)
     else:
-        canBeLastDayOfMonth = (myDate.day == 31)
-    return canBeLastDayOfMonth
+        return_value = (date_without_time.day == 31)
+    return return_value
+
 
 def number_days_in_month(date):
     # start at the 31st, work backwards
-    calDay = 31
+    return_value = 31
     while True:
         try:
-            date = date.replace(day=calDay)
-            return calDay
+            date = date.replace(day=return_value)
+            return return_value
         except ValueError:
-            calDay -= 1
-            
-def add_months(date_text, numberMonths, use_last_day):
+            return_value -= 1
+
+
+def add_months(date_text, number_months, use_last_day):
     start_date = datetime.datetime.strptime(date_text, DATE_FORMAT)
     # preserve day
     preserve_day = start_date.day
@@ -77,15 +82,15 @@ def add_months(date_text, numberMonths, use_last_day):
     # set day to be 1st
     if preserve_day != 1:
         date = date.replace(day=1)
-    #loop through months, using first day
+    # loop through months, using first day
     # TODO - optimize this by creating a one-time array
-    for z in range(0, numberMonths):    
+    for z in range(0, number_months):
         # get days of this month
         days_in_this_month = number_days_in_month(date)
         # add days to get desired month
         date += datetime.timedelta(days=days_in_this_month)
     # date is now the first day of the desired month
-    if (use_last_day == True):
+    if use_last_day:
         days_in_this_month = number_days_in_month(date)
         date = date.replace(day=days_in_this_month)
         return date.strftime(DATE_FORMAT)
