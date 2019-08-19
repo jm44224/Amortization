@@ -19,6 +19,7 @@ class AmortizationView:
         self.EDIT_PROMPT_EXIT = 'exit'
         self.EDIT_PROMPT_ENTER = 'Enter'
         self.MENU_PROMPT_QUIT = 'q'
+        self.MENU_PROMPT_PRINT = 'p'
         self.ERR_END_BAL_LT_ZERO = 'Ending balance is less than zero.'
         self.ERR_TOTAL_GT_ZERO = 'Payment less interest less ending balance is greater than zero.'
         self.ERR_INV_DATE_FORMAT_CHECK = 'does not match format'

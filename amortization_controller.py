@@ -5,6 +5,8 @@ from amortization_date_functions import can_be_last_day_of_month
 
 
 class AmortizationController:
+    payment_list = []
+
     def __init__(self, amortization_model, amortization_view):
         self.model = amortization_model
         self.view = amortization_view
@@ -26,6 +28,7 @@ class AmortizationController:
     # this is the first step of calculation
     # it will be improved in the future
     def amortize(self):
+        self.payment_list.clear()
         beginning_balance = self.model.loan_amount
         ending_balance = 0
         start_date = self.model.start_date
@@ -83,14 +86,14 @@ class AmortizationController:
                     if (abs(current_month.calculated_payment
                             - current_month.interest
                             - current_month.ending_balance) > .01):
-                        self.view.print_curr_month(current_month)
+                        self.payment_list.append(current_month)
                         raise ValueError(self.view.ERR_TOTAL_GT_ZERO)
                 else:
                     current_month.principal = \
                         round(current_month.calculated_payment - current_month.interest, 2)
                 current_month.ending_balance = \
                     round(current_month.beginning_balance - current_month.principal, 2)
-                self.view.print_curr_month(current_month)
+                self.payment_list.append(current_month)
                 beginning_balance = ending_balance = current_month.ending_balance
                 if current_month.ending_balance < 0:
                     raise ValueError(self.view.ERR_ENDBAL_LT_ZERO)
@@ -138,6 +141,9 @@ class AmortizationController:
             response = self.view.user_input_menu().lower()[:1]
             if response == self.view.MENU_PROMPT_QUIT:
                 break
+            elif response == self.view.MENU_PROMPT_PRINT:
+                for i in range(len(self.payment_list)):
+                    self.view.print_curr_month(self.payment_list[i])
             elif response == '1':
                 response = self.view.user_input(self.view.LBL_LN_1)
                 if self.check_for_quit(response):
