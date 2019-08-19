@@ -33,13 +33,13 @@ class AmortizationView:
         
     # shows all values to the user
     def print_menu(self, model):
-        print("(1) %s %s" % (self.LBL_LN_1, model.title))
-        print("(2) %s %s" % (self.LBL_LN_2, model.start_date))
-        print("(3) %s %d" % (self.LBL_LN_3, model.loan_months))
-        print("(4) %s %.2f" % (self.LBL_LN_4, model.loan_amount))
-        print("(5) %s %.4f" % (self.LBL_LN_5, model.annual_percentage_rate))
-        print("( ) %s %.2f" % (self.LBL_LN_6, model.calculated_payment))
-        print("(6) %s %.2f" % (self.LBL_LN_7, model.override_payment))
+        print("  (1) %s %s" % (self.LBL_LN_1, model.title))
+        print("  (2) %s %s" % (self.LBL_LN_2, model.start_date))
+        print("  (3) %s %d" % (self.LBL_LN_3, model.loan_months))
+        print("  (4) %s %.2f" % (self.LBL_LN_4, model.loan_amount))
+        print("  (5) %s %.4f" % (self.LBL_LN_5, model.annual_percentage_rate))
+        print("  ( ) %s %.2f" % (self.LBL_LN_6, model.calculated_payment))
+        print("  (6) %s %.2f" % (self.LBL_LN_7, model.override_payment))
 
     # prints current month values
     @staticmethod
